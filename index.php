@@ -62,58 +62,92 @@ $sample4 = "<?xml version='1.0' encoding='UTF-8'?>
 
 function SanitizeData($inputStr)
 {
-$result = "";
+    $result = "";
     $mask = array("cardnumber", "cardexpiry", "cardcvv", "account_card_number", "account_expiry", "cvv", "cardexp", "carddatanumber", "exp", "cvvcvcsecurity");
 
 
     $lines = explode("\n", $inputStr); //split data by new lines into an array
 
+    $caseSample2 = false;
+//Check the number of lines, do an extra explode if there is only one line
+    if (count($lines) == 1) {
+        $caseSample2 = true;
+        $lines = explode('&', $inputStr);
+    }
 
-    foreach ($lines as $line) {
+    foreach ($lines as $key => $line) {
 
-       $match =  SearchArray($line, $mask);
+        $match = SearchArray($line, $mask);
 
-       if($match === true){
-           $output = preg_replace('/[0-9]+/', GenerateStars($line), $line);
-           $result .= $output . "\n";
-       } else {
-           $result .= $line . "\n";
-       }
+        if ($match === true) {
+            if ($caseSample2 === false) {
+                $output = preg_replace('/[0-9]+/', GenerateStars($line), $line);
+                $result .= $output;
+                if ($key != array_key_last($lines)) {
+                    $result .= "\n";
+                }
+            } else {
+                $output = preg_replace('/=[0-9]+/', '=' . GenerateStars($line, '/=\d+/', -1), $line);
+                $result .= $output;
+                if ($key != array_key_last($lines)) {
+                    $result .= "&";
+                }
+
+            }
 
 
+        } else {
+            if ($caseSample2 === false) {
+                $result .= $line;
+                if ($key != array_key_last($lines)) {
+                    $result .= "\n";
+                }
+            } else {
+                $result .= $line;
+                if ($key != array_key_last($lines)) {
+                    $result .= "&";
+                }
+            }
+
+
+        }
 
 
     }
 
-return $result;
+    return $result;
 }
 
 function SearchArray($str, $arr)
 {
 
-    foreach($arr as $item) {
-        $pattern = '/\W'.$item.'\W/i';
-        $result = preg_match($pattern,$str);
-        if ( $result == 1) return true;
+    foreach ($arr as $item) {
+        $pattern = '/\W' . $item . '\W/i';
+        $result = preg_match($pattern, $str);
+        if ($result == 1) return true;
     }
     return false;
 }
 
-function GenerateStars($str){
-    preg_match_all('!\d+!', $str, $matches);
+function GenerateStars($str, $pattern = '!\d+!', $extraStars = 0)
+{
+    preg_match_all($pattern, $str, $matches);
 
     $stars = "";
-$length = strlen($matches[0][0]);
-    for($i = 0; $i < $length; $i++){
+    $length = strlen($matches[0][0]);
+    for ($i = 0; $i < ($length + $extraStars); $i++) {
         $stars .= "*";
     }
 
     return $stars;
 }
-echo "Sample 1 <br>";
+
+/*echo "Sample 1 <br>";
 echo SanitizeData($sample1);
 echo "<br><br> Sample 3<br>";
 echo SanitizeData($sample3);
 echo "<br><br>Sample 4<br>";
-echo SanitizeData($sample4);
+echo SanitizeData($sample4);*/
+
+echo SanitizeData($sample2);
 
