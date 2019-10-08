@@ -62,7 +62,50 @@ $sample4 = "<?xml version='1.0' encoding='UTF-8'?>
 
 function SanitizeData($inputStr)
 {
+$result = "";
+    $mask = array("cardnumber", "cardexpiry", "cardcvv", "account_card_number", "account_expiry", "cvv", "cardexp", "carddatanumber", "exp", "cvvcvcsecurity");
 
+
+    $lines = explode("\n", $inputStr); //split data by new lines into an array
+
+
+    foreach ($lines as $line) {
+
+       $match =  SearchArray($line, $mask);
+
+       if($match === true){
+           $output = preg_replace('/[0-9]+/', GenerateStars($line), $line);
+           $result .= $output . "\n";
+       } else {
+           $result .= $line . "\n";
+       }
+
+
+
+
+    }
+
+print_r($result);
 }
 
+function SearchArray($str, $arr)
+{
+    foreach($arr as $item) {
+        if (stripos($str,$item) !== false) return true;
+    }
+    return false;
+}
 
+function GenerateStars($str){
+    preg_match_all('!\d+!', $str, $matches);
+
+    $stars = "";
+$length = strlen($matches[0][0]);
+    for($i = 0; $i < $length; $i++){
+        $stars .= "*";
+    }
+
+    return $stars;
+}
+
+SanitizeData($sample1);
