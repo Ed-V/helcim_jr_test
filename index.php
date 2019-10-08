@@ -85,13 +85,16 @@ $result = "";
 
     }
 
-print_r($result);
+return $result;
 }
 
 function SearchArray($str, $arr)
 {
+
     foreach($arr as $item) {
-        if (stripos($str,$item) !== false) return true;
+        $pattern = '/\W'.$item.'\W/i';
+        $result = preg_match($pattern,$str);
+        if ( $result == 1) return true;
     }
     return false;
 }
@@ -107,5 +110,10 @@ $length = strlen($matches[0][0]);
 
     return $stars;
 }
+echo "Sample 1 <br>";
+echo SanitizeData($sample1);
+echo "<br><br> Sample 3<br>";
+echo SanitizeData($sample3);
+echo "<br><br>Sample 4<br>";
+echo SanitizeData($sample4);
 
-SanitizeData($sample1);
