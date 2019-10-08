@@ -142,12 +142,14 @@ function GenerateStars($str, $pattern = '!\d+!', $extraStars = 0)
     return $stars;
 }
 
-/*echo "Sample 1 <br>";
+echo "Sample 1 <br>";
 echo SanitizeData($sample1);
+echo "<br><br> Sample 2<br>";
+echo SanitizeData($sample2);
 echo "<br><br> Sample 3<br>";
 echo SanitizeData($sample3);
 echo "<br><br>Sample 4<br>";
-echo SanitizeData($sample4);*/
+echo SanitizeData($sample4);
 
-echo SanitizeData($sample2);
+
 
