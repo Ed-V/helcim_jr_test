@@ -1,5 +1,6 @@
 <?php
 
+//Sample data
 $sample1 = "[orderId] => 212939129
 [orderNumber] => INV10001
 [salesTax] => 1.00
@@ -60,26 +61,35 @@ $sample4 = "<?xml version='1.0' encoding='UTF-8'?>
 	</NewOrder>
 </Request>";
 
+/**
+ * Sanitize sensitive information in string
+ * @param $inputStr string to be sanitized
+ * @return string sanitized string
+ */
 function SanitizeData($inputStr)
 {
     $result = "";
+    //keywords to search for masking, case insensitive
     $mask = array("cardnumber", "cardexpiry", "cardcvv", "account_card_number", "account_expiry", "cvv", "cardexp", "carddatanumber", "exp", "cvvcvcsecurity");
 
 
     $lines = explode("\n", $inputStr); //split data by new lines into an array
 
     $caseSample2 = false;
-//Check the number of lines, do an extra explode if there is only one line
+
+    //Check number of lines and set the function to handle the special case 2 if there is only one line
     if (count($lines) == 1) {
         $caseSample2 = true;
         $lines = explode('&', $inputStr);
     }
 
+    //loop through the lines and process each one
     foreach ($lines as $key => $line) {
 
         $match = SearchArray($line, $mask);
 
         if ($match === true) {
+            //If there is a match will check if it is the special case otherwise it will process as normal
             if ($caseSample2 === false) {
                 $output = preg_replace('/[0-9]+/', GenerateStars($line), $line);
                 $result .= $output;
@@ -97,6 +107,7 @@ function SanitizeData($inputStr)
 
 
         } else {
+            //Process the line if there is no match base on if it's the special case or not
             if ($caseSample2 === false) {
                 $result .= $line;
                 if ($key != array_key_last($lines)) {
@@ -118,6 +129,13 @@ function SanitizeData($inputStr)
     return $result;
 }
 
+/**
+ *
+ * Search the string for keywords in an array. Will return a boolean.
+ * @param $str string to search
+ * @param $arr array of keywords to serach for
+ * @return bool true if the keywords are found in string; otherwise false
+ */
 function SearchArray($str, $arr)
 {
 
@@ -129,6 +147,15 @@ function SearchArray($str, $arr)
     return false;
 }
 
+/**
+ *
+ * Generate stars based on the amount of numbers in a string
+ *
+ * @param $str string to search numbers for
+ * @param string $pattern custom pattern to use
+ * @param int $extraStars stars to add on the result
+ * @return string string containing stars
+ */
 function GenerateStars($str, $pattern = '!\d+!', $extraStars = 0)
 {
     preg_match_all($pattern, $str, $matches);
@@ -142,6 +169,7 @@ function GenerateStars($str, $pattern = '!\d+!', $extraStars = 0)
     return $stars;
 }
 
+//Example output
 echo "Sample 1 <br>";
 echo SanitizeData($sample1);
 echo "<br><br> Sample 2<br>";
